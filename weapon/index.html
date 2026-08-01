@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Combat Robot Weapon Calc</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Prevents zoom on double-tap for mobile */
+        input, select { touch-action: manipulation; }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 font-sans min-h-screen p-4 pb-12 lg:p-6">
+
+    <div class="max-w-5xl mx-auto space-y-6">
+        
+        <!-- Header -->
+        <div class="bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700">
+            <h1 class="text-2xl font-bold text-red-500 mb-2">Combat Robot Weapon Calculator</h1>
+            <p class="text-gray-400 text-sm">Design your weapon drive to hit target tip speeds and calculate exact C2C packaging for XL, GT2, or HTD belts.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- Inputs Column -->
+            <div class="lg:col-span-2 space-y-6">
+                
+                <!-- Power & Motor Box -->
+                <div class="bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700">
+                    <h2 class="text-lg font-semibold text-white border-b border-gray-700 pb-2 mb-4">Power & Motor</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-1">Battery Voltage</label>
+                            <div class="relative">
+                                <input type="number" id="voltage" value="22.2" step="0.1" oninput="calculate()" class="w-full bg-gray-700 text-white border border-gray-600 rounded-lg p-2.5 focus:ring-2 focus:ring-red-500 outline-none transition-all">
+                                <div class="absolute right-3 top-2.5 text-gray-400 text-sm pointer-events-none">Volts</div>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1">4S = 14.8V | 6S = 22.2V</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-1">Motor KV</label>
+                            <div class="relative">
+                                <input type="number" id="kv" value="1480" step="1" oninput="calculate()" class="w-full bg-gray-700 text-white border border-gray-600 rounded-lg p-2.5 focus:ring-2 focus:ring-red-500 outline-none transition-all">
+                                <div class="absolute right-3 top-2.5 text-gray-400 text-sm pointer-events-none">KV</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Geometry & Drive Box -->
+                <div class="bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700">
+                    <h2 class="text-lg font-semibold text-white border-b border-gray-700 pb-2 mb-4">Weapon & Pulleys</h2>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                        <div class="sm:col-span-3">
+                            <label class="block text-sm font-medium text-gray-400 mb-1">Weapon Outer Diameter</label>
+                            <div class="relative">
+                                <input type="number" id="weapon-dia" value="5.0" step="0.1" oninput="calculate()" class="w-full bg-gray-700 text-white border border-gray-600 rounded-lg p-2.5 focus:ring-2 focus:ring-red-500 outline-none transition-all">
+                                <div class="absolute right-3 top-2.5 text-gray-400 text-sm pointer-events-none">inches</div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-1">Motor Pulley</label>
+                            <div class="relative">
+                                <input type="number" id="motor-pulley" value="14" step="1" oninput="calculate()" class="w-full bg-gray-700 text-white border border-gray-600 rounded-lg p-2.5 focus:ring-2 focus:ring-red-500 outline-none transition-all">
+                                <div class="absolute right-3 top-2.5 text-gray-400 text-sm pointer-events-none">Teeth</div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-1">Weapon Pulley</label>
+                            <div class="relative">
+                                <input type="number" id="weapon-pulley" value="26" step="1" oninput="calculate()" class="w-full bg-gray-700 text-white border border-gray-600 rounded-lg p-2.5 focus:ring-2 focus:ring-red-500 outline-none transition-all">
+                                <div class="absolute right-3 top-2.5 text-gray-400 text-sm pointer-events-none">Teeth</div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-1">Belt Length</label>
+                            <div class="relative">
+                                <input type="number" id="belt-teeth" value="60" step="1" oninput="calculate()" class="w-full bg-gray-700 text-white border border-gray-600 rounded-lg p-2.5 focus:ring-2 focus:ring-red-500 outline-none transition-all">
+                                <div class="absolute right-3 top-2.5 text-gray-400 text-sm pointer-events-none">Teeth</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Belt Pitch (inches)</label>
+                        <input type="number" id="pitch" value="0.200" step="0.001" oninput="calculate()" class="w-full bg-gray-900 text-red-300 border border-gray-700 rounded-lg p-2.5 focus:ring-2 focus:ring-red-500 outline-none font-mono transition-all">
+                        <p class="text-xs text-gray-500 mt-1">XL = 0.200 | HTD 3mm = 0.118 | GT2 2mm = 0.0787</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Column -->
+            <div class="space-y-6">
+                
+                <!-- Speed Results -->
+                <div id="speed-box" class="p-6 rounded-xl shadow-lg border bg-gray-800 border-gray-700 flex flex-col justify-center space-y-4 transition-colors">
+                    <div>
+                        <h3 id="speed-title" class="text-sm font-medium uppercase tracking-wider mb-1 text-gray-400">Theoretical Tip Speed</h3>
+                        <div class="flex items-baseline gap-1">
+                            <div id="tip-speed" class="text-5xl font-black text-white">0</div>
+                            <span id="mph-label" class="text-2xl text-gray-500">MPH</span>
+                        </div>
+                        <p id="speed-warning" class="hidden text-xs text-red-400 font-bold mt-2 bg-red-900/50 p-2 rounded border border-red-800">
+                            WARNING: Exceeds 250 MPH. May be illegal in many arenas!
+                        </p>
+                    </div>
+
+                    <div class="h-px w-full bg-gray-700/50"></div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <h3 class="text-xs font-medium text-gray-500 uppercase">Weapon RPM</h3>
+                            <div id="weapon-rpm" class="text-xl font-bold text-gray-200">0</div>
+                        </div>
+                        <div>
+                            <h3 class="text-xs font-medium text-gray-500 uppercase">Motor RPM</h3>
+                            <div id="motor-rpm" class="text-xl font-bold text-gray-200">0</div>
+                        </div>
+                        <div>
+                            <h3 class="text-xs font-medium text-gray-500 uppercase">Reduction</h3>
+                            <div id="reduction-ratio" class="text-xl font-bold text-red-400">0.00 : 1</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Packaging Results -->
+                <div class="bg-blue-900/20 p-6 rounded-xl shadow-lg border border-blue-800/50 flex flex-col justify-center min-h-[160px]">
+                    <h3 class="text-sm font-medium text-blue-400 uppercase tracking-wider mb-2">Exact Center-to-Center</h3>
+                    
+                    <div id="c2c-error" class="hidden text-red-400 font-semibold mt-2">
+                        Error: Belt is too short for these pulleys!
+                    </div>
+                    
+                    <div id="c2c-results">
+                        <div class="text-4xl font-black text-white font-mono">
+                            <span id="c2c-in">0.0000</span><span class="text-2xl text-blue-500 ml-1">in</span>
+                        </div>
+                        <div class="text-xl font-bold text-blue-300 mt-1 font-mono">
+                            <span id="c2c-mm">0.00</span><span class="text-lg text-blue-500/70 ml-1">mm</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function calculate() {
+            // 1. Get Values
+            const voltage = parseFloat(document.getElementById('voltage').value) || 0;
+            const kv = parseFloat(document.getElementById('kv').value) || 0;
+            const weaponDiameter = parseFloat(document.getElementById('weapon-dia').value) || 0;
+            const motorPulley = parseFloat(document.getElementById('motor-pulley').value) || 0;
+            const weaponPulley = parseFloat(document.getElementById('weapon-pulley').value) || 0;
+            const beltTeeth = parseFloat(document.getElementById('belt-teeth').value) || 0;
+            const pitch = parseFloat(document.getElementById('pitch').value) || 0;
+
+            // 2. Speed Math
+            const motorRpm = voltage * kv;
+            const reductionRatio = motorPulley > 0 ? weaponPulley / motorPulley : 0;
+            const weaponRpm = reductionRatio > 0 ? motorRpm / reductionRatio : 0;
+            const tipSpeedMph = (weaponRpm * Math.PI * weaponDiameter * 60) / 63360;
+
+            // 3. C2C Math
+            const term1 = beltTeeth - (motorPulley + weaponPulley) / 2;
+            const term2 = (2 / Math.pow(Math.PI, 2)) * Math.pow(weaponPulley - motorPulley, 2);
+            const innerSqrt = Math.pow(term1, 2) - term2;
+            
+            let c2cError = false;
+            let c2cInches = 0;
+            let c2cMm = 0;
+
+            if (innerSqrt < 0 || beltTeeth <= (motorPulley + weaponPulley) / 2) {
+                c2cError = true;
+            } else {
+                c2cInches = (pitch / 4) * (term1 + Math.sqrt(innerSqrt));
+                c2cMm = c2cInches * 25.4;
+            }
+
+            // 4. Update UI - Speeds
+            document.getElementById('tip-speed').textContent = tipSpeedMph.toFixed(0);
+            document.getElementById('weapon-rpm').textContent = weaponRpm.toLocaleString(undefined, {maximumFractionDigits: 0});
+            document.getElementById('motor-rpm').textContent = motorRpm.toLocaleString(undefined, {maximumFractionDigits: 0});
+            document.getElementById('reduction-ratio').textContent = reductionRatio.toFixed(2) + " : 1";
+
+            // Handle Speed Warning Styling
+            const isWarning = tipSpeedMph > 250;
+            const speedBox = document.getElementById('speed-box');
+            const speedTitle = document.getElementById('speed-title');
+            const tipSpeedEl = document.getElementById('tip-speed');
+            const mphLabel = document.getElementById('mph-label');
+            const warningMsg = document.getElementById('speed-warning');
+
+            if (isWarning) {
+                speedBox.className = "p-6 rounded-xl shadow-lg border bg-red-900/30 border-red-500/50 flex flex-col justify-center space-y-4 transition-colors";
+                speedTitle.className = "text-sm font-medium uppercase tracking-wider mb-1 text-red-300";
+                tipSpeedEl.className = "text-5xl font-black text-red-400";
+                mphLabel.className = "text-2xl text-red-500";
+                warningMsg.classList.remove('hidden');
+            } else {
+                speedBox.className = "p-6 rounded-xl shadow-lg border bg-gray-800 border-gray-700 flex flex-col justify-center space-y-4 transition-colors";
+                speedTitle.className = "text-sm font-medium uppercase tracking-wider mb-1 text-gray-400";
+                tipSpeedEl.className = "text-5xl font-black text-white";
+                mphLabel.className = "text-2xl text-gray-500";
+                warningMsg.classList.add('hidden');
+            }
+
+            // 5. Update UI - C2C
+            const c2cResults = document.getElementById('c2c-results');
+            const c2cErrorEl = document.getElementById('c2c-error');
+
+            if (c2cError) {
+                c2cResults.classList.add('hidden');
+                c2cErrorEl.classList.remove('hidden');
+            } else {
+                c2cResults.classList.remove('hidden');
+                c2cErrorEl.classList.add('hidden');
+                document.getElementById('c2c-in').textContent = c2cInches.toFixed(4);
+                document.getElementById('c2c-mm').textContent = c2cMm.toFixed(2);
+            }
+        }
+
+        // Initialize calculations on page load
+        calculate();
+    </script>
+</body>
+</html>
