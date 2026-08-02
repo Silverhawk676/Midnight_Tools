@@ -57,14 +57,26 @@
         <div id="view-dashboard" class="app-view fade-in space-y-6">
             <div class="flex justify-between items-center">
                 <h2 class="text-xl font-bold text-white">Saved Configurations</h2>
-                <div class="flex gap-3">
-                    <button onclick="openCompare()" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg font-medium transition border border-gray-600 flex items-center gap-2">
+                <div class="flex gap-3 items-center">
+                    
+                    <!-- New Export/Import Buttons -->
+                    <div class="flex gap-2 mr-1 sm:mr-3 border-r border-gray-700 pr-2 sm:pr-4">
+                        <button onclick="exportData()" class="p-2 text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 rounded-lg border border-gray-700 transition" title="Export Backup">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        </button>
+                        <label class="p-2 text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 rounded-lg border border-gray-700 transition cursor-pointer" title="Import Backup">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                            <input type="file" id="import-file" accept=".json" class="hidden" onchange="importData(event)">
+                        </label>
+                    </div>
+
+                    <button onclick="openCompare()" class="px-3 sm:px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg font-medium transition border border-gray-600 flex items-center gap-2">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5M4 21h5v-5M21 3l-7 7M3 21l7-7M21 21v-5h-5M3 3v5h5M21 21l-7-7M3 3l7 7"></path></svg>
-                        Compare
+                        <span class="hidden sm:inline">Compare</span>
                     </button>
-                    <button onclick="createNewConfig()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-bold transition shadow-lg shadow-blue-900/50 flex items-center gap-2">
+                    <button onclick="createNewConfig()" class="px-3 sm:px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-bold transition shadow-lg shadow-blue-900/50 flex items-center gap-2">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                        New Build
+                        <span class="hidden sm:inline">New Build</span>
                     </button>
                 </div>
             </div>
@@ -391,6 +403,53 @@
                 saveToStorage();
                 renderDashboard();
             }
+        };
+
+        // --- IMPORT & EXPORT LOGIC ---
+        const exportData = () => {
+            const dataStr = JSON.stringify(configs, null, 2);
+            const blob = new Blob([dataStr], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = "robot-configs-backup.json";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        };
+
+        const importData = (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (Array.isArray(imported)) {
+                        // Ask if they want to merge or overwrite
+                        if(confirm("Do you want to MERGE these with your existing configs?\n\n(Click 'OK' to add them together, or 'Cancel' to OVERWRITE your current configs)")) {
+                            // Merge: Assign new IDs so they don't overlap existing ones
+                            imported.forEach(imp => {
+                                const newConfig = {...imp, id: 'id-' + Date.now() + Math.random().toString().slice(2, 6)};
+                                configs.push(newConfig);
+                            });
+                        } else {
+                            // Overwrite completely
+                            configs = imported;
+                        }
+                        saveToStorage();
+                        renderDashboard();
+                    } else {
+                        alert("Invalid file format.");
+                    }
+                } catch (err) {
+                    alert("Error reading file. Make sure it is a valid JSON backup.");
+                }
+                event.target.value = ''; // Reset input so you can import the same file again if needed
+            };
+            reader.readAsText(file);
         };
 
         // Reads form directly to compute side-panel stats before saving
